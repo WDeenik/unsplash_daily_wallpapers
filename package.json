@@ -1,0 +1,34 @@
+{
+  "name": "unsplash_daily_wallpapers",
+  "version": "0.0.1",
+  "description": "Can be run daily to download new wallpapers from Unsplash.com",
+  "main": "app.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WDeenik/unsplash_daily_wallpapers.git"
+  },
+  "author": "Wouter Deenik",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/WDeenik/unsplash_daily_wallpapers/issues"
+  },
+  "homepage": "https://github.com/WDeenik/unsplash_daily_wallpapers#readme",
+  "dependencies": {
+    "babel-register": "^6.26.0",
+    "js-yaml": "^3.11.0",
+    "mkdirp": "^0.5.1",
+    "node-fetch": "^2.1.2",
+    "request": "^2.85.0",
+    "unsplash-js": "^4.8.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^3.11.1",
+    "@types/mkdirp": "^0.5.2",
+    "@types/node": "^10.0.8",
+    "@types/node-fetch": "^1.6.9",
+    "@types/request": "^2.47.0"
+  }
+}
