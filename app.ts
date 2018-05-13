@@ -9,6 +9,7 @@ import * as unsplash from "./lib/unsplash";
 const jimp = require("jimp");
 
 const config = loadConfigSync();
+const fontSize = calcFontSize();
 const unsplashInstance = unsplash.init(config);
 
 downloadWallpapers(unsplashInstance);
@@ -31,7 +32,7 @@ async function downloadWallpapers(us: unsplash.IUnsplash) {
     const file = `${config.folder}/${wallpaper.id}.jpg`;
     const { url } = await us.photos.downloadPhoto(wallpaper).then(toJson);
     await download(url, file);
-    await process(file);
+    await process(file, wallpaper.user.name);
   }));
 }
 
@@ -50,15 +51,46 @@ async function download(url: string, savePath: string) {
   });
 }
 
-async function process(file: string) {
+async function process(file: string, photographer: string) {
   try {
     const img = await jimp.read(file);
     await img.cover(config.width, config.height);
-    await img.quality(80);
-    // TODO: Watermark with correct font size & everything
-    // await jimp.loadFont("./fonts/Sans_Shadow_White_32.fnt");
+    await img.quality(100);
+    const font = await jimp.loadFont(`./fonts/Sans_Shadow_White_${fontSize}.fnt`);
+    const text = `By: ${photographer}`;
+    const offset = measureText(font, text) + 0.25 * fontSize;
+    img.print(font, config.width - offset, config.height - 1.5 * fontSize, text);
     await img.write(file);
   } catch (e) {
     throw(e);
   }
+}
+
+// Borrowed this one from Jimp so we can make our own right-aligned text
+function measureText(font, text): number {
+  let x = 0;
+  for (let i = 0; i < text.length; i++) {
+      if (font.chars[text[i]]) {
+          // x += font.chars[text[i]].xoffset // Jimp does not use this when rendering
+          x += (font.kernings[text[i]] && font.kernings[text[i]][text[i + 1]] ? font.kernings[text[i]][text[i + 1]] : 0)
+            + (font.chars[text[i]].xadvance || 0);
+      }
+  }
+  return x;
+}
+
+function calcFontSize(): number {
+  const sizes = getFontSizes();
+  const prefSize = config.height / 64;
+  return sizes.reduce((bestFit, curr) => {
+    return (Math.abs(curr - prefSize) < Math.abs(bestFit - prefSize))
+      ? curr
+      : bestFit;
+  });
+}
+
+function getFontSizes(): number[] {
+  return fs.readdirSync("./fonts")
+    .filter((fn) => fn.search(/\d+\.fnt$/) >= 0)
+    .map((fn) => parseInt(fn.match(/(\d+).fnt$/)[0], 10));
 }

@@ -45,6 +45,7 @@ var unsplash = require("./lib/unsplash");
 // tslint:disable-next-line:no-var-requires
 var jimp = require("jimp");
 var config = config_1.loadConfigSync();
+var fontSize = calcFontSize();
 var unsplashInstance = unsplash.init(config);
 downloadWallpapers(unsplashInstance);
 // TODO: clean up old wallpapers:
@@ -77,7 +78,7 @@ function downloadWallpapers(us) {
                                         return [4 /*yield*/, download(url, file)];
                                     case 2:
                                         _a.sent();
-                                        return [4 /*yield*/, process(file)];
+                                        return [4 /*yield*/, process(file, wallpaper.user.name)];
                                     case 3:
                                         _a.sent();
                                         return [2 /*return*/];
@@ -113,35 +114,63 @@ function download(url, savePath) {
         });
     });
 }
-function process(file) {
+function process(file, photographer) {
     return __awaiter(this, void 0, void 0, function () {
-        var img, e_1;
+        var img, font, text, offset, e_1;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 5, , 6]);
+                    _a.trys.push([0, 6, , 7]);
                     return [4 /*yield*/, jimp.read(file)];
                 case 1:
                     img = _a.sent();
                     return [4 /*yield*/, img.cover(config.width, config.height)];
                 case 2:
                     _a.sent();
-                    return [4 /*yield*/, img.quality(80)];
+                    return [4 /*yield*/, img.quality(100)];
                 case 3:
                     _a.sent();
-                    // TODO: Watermark with correct font size & everything
-                    // await jimp.loadFont("./fonts/Sans_Shadow_White_32.fnt");
-                    return [4 /*yield*/, img.write(file)];
+                    return [4 /*yield*/, jimp.loadFont("./fonts/Sans_Shadow_White_" + fontSize + ".fnt")];
                 case 4:
-                    // TODO: Watermark with correct font size & everything
-                    // await jimp.loadFont("./fonts/Sans_Shadow_White_32.fnt");
-                    _a.sent();
-                    return [3 /*break*/, 6];
+                    font = _a.sent();
+                    text = "By: " + photographer;
+                    offset = measureText(font, text) + 0.25 * fontSize;
+                    img.print(font, config.width - offset, config.height - 1.5 * fontSize, text);
+                    return [4 /*yield*/, img.write(file)];
                 case 5:
+                    _a.sent();
+                    return [3 /*break*/, 7];
+                case 6:
                     e_1 = _a.sent();
                     throw (e_1);
-                case 6: return [2 /*return*/];
+                case 7: return [2 /*return*/];
             }
         });
     });
+}
+// Borrowed this one from Jimp so we can make our own right-aligned text
+function measureText(font, text) {
+    var x = 0;
+    for (var i = 0; i < text.length; i++) {
+        if (font.chars[text[i]]) {
+            // x += font.chars[text[i]].xoffset // Jimp does not use this when rendering
+            x += (font.kernings[text[i]] && font.kernings[text[i]][text[i + 1]] ? font.kernings[text[i]][text[i + 1]] : 0)
+                + (font.chars[text[i]].xadvance || 0);
+        }
+    }
+    return x;
+}
+function calcFontSize() {
+    var sizes = getFontSizes();
+    var prefSize = config.height / 64;
+    return sizes.reduce(function (bestFit, curr) {
+        return (Math.abs(curr - prefSize) < Math.abs(bestFit - prefSize))
+            ? curr
+            : bestFit;
+    });
+}
+function getFontSizes() {
+    return fs.readdirSync("./fonts")
+        .filter(function (fn) { return fn.search(/\d+\.fnt$/) >= 0; })
+        .map(function (fn) { return parseInt(fn.match(/(\d+).fnt$/)[0], 10); });
 }
