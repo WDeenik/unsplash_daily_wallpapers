@@ -1,0 +1,6 @@
+folder: C:\Wallpapers # Where to store the wallpapers
+max_wallpapers: 10 # Maximum number of wallpapers to have at any given time. Cannot be >20.
+unsplash_appKey: <your Unsplash.com app Access Key>
+unsplash_appSecret: <your Unsplash.com app Secret Key>
+width: 1920
+height: 1080

@@ -95,13 +95,15 @@ function downloadWallpapers(us) {
 }
 function cleanUpWallpapers(toKeep) {
     return __awaiter(this, void 0, void 0, function () {
-        var keepFns, del;
+        var keepFns_1, del;
         return __generator(this, function (_a) {
-            keepFns = toKeep.map(function (id) { return id + ".jpg"; });
-            del = fs.readdirSync(config.folder)
-                .filter(function (fn) { return fn.search(/\.jpg$/) >= 0; })
-                .filter(function (fn) { return keepFns.indexOf(fn) < 0; });
-            del.forEach(function (fn) { return fs.unlinkSync(config.folder + "/" + fn); });
+            if (config.delete_more_than_max) {
+                keepFns_1 = toKeep.map(function (id) { return id + ".jpg"; });
+                del = fs.readdirSync(config.folder)
+                    .filter(function (fn) { return fn.search(/\.jpg$/) >= 0; })
+                    .filter(function (fn) { return keepFns_1.indexOf(fn) < 0; });
+                del.forEach(function (fn) { return fs.unlinkSync(config.folder + "/" + fn); });
+            }
             return [2 /*return*/];
         });
     });
@@ -113,7 +115,7 @@ function download(url, savePath) {
         return __generator(this, function (_a) {
             options = {
                 headers: {
-                    Authorization: "Client-ID " + config.unsplash_appId
+                    Authorization: "Client-ID " + config.unsplash_appKey
                 },
                 url: url
             };

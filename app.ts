@@ -36,18 +36,20 @@ async function downloadWallpapers(us: unsplash.IUnsplash): Promise<string[]> {
 }
 
 async function cleanUpWallpapers(toKeep: string[]) {
-  const keepFns = toKeep.map((id) => id + ".jpg");
-  const del = fs.readdirSync(config.folder)
-  .filter((fn) => fn.search(/\.jpg$/) >= 0)
-  .filter((fn) => keepFns.indexOf(fn) < 0);
+  if (config.delete_more_than_max) {
+    const keepFns = toKeep.map((id) => id + ".jpg");
+    const del = fs.readdirSync(config.folder)
+    .filter((fn) => fn.search(/\.jpg$/) >= 0)
+    .filter((fn) => keepFns.indexOf(fn) < 0);
 
-  del.forEach((fn) => fs.unlinkSync(`${config.folder}/${fn}`));
+    del.forEach((fn) => fs.unlinkSync(`${config.folder}/${fn}`));
+  }
 }
 
 async function download(url: string, savePath: string) {
   const options = {
     headers: {
-      Authorization: `Client-ID ${config.unsplash_appId}`,
+      Authorization: `Client-ID ${config.unsplash_appKey}`,
     },
     url,
   };

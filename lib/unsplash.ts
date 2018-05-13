@@ -23,7 +23,7 @@ interface ICollections {
 
 export function init(config: IConfig): IUnsplash {
   return new Unsplash({
-    applicationId: config.unsplash_appId,
+    applicationId: config.unsplash_appKey,
     callbackUrl: "",
     secret: config.unsplash_appSecret,
   });
