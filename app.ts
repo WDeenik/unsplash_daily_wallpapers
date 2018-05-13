@@ -69,7 +69,7 @@ async function process(file: string, photographer: string) {
     const font = await jimp.loadFont(`./fonts/Sans_Shadow_White_${fontSize}.fnt`);
     const text = `By: ${photographer}`;
     const offset = measureText(font, text) + 0.25 * fontSize;
-    img.print(font, config.width - offset, config.height - 1.5 * fontSize, text);
+    img.print(font, config.width - offset, 0, text);
     await img.write(file);
   } catch (e) {
     throw(e);

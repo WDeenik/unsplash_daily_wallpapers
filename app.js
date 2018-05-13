@@ -151,7 +151,7 @@ function process(file, photographer) {
                     font = _a.sent();
                     text = "By: " + photographer;
                     offset = measureText(font, text) + 0.25 * fontSize;
-                    img.print(font, config.width - offset, config.height - 1.5 * fontSize, text);
+                    img.print(font, config.width - offset, 0.1 * fontSize, text);
                     return [4 /*yield*/, img.write(file)];
                 case 5:
                     _a.sent();
