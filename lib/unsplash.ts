@@ -26,5 +26,5 @@ export function init(config: IConfig): IUnsplash {
     applicationId: config.unsplash_appId,
     callbackUrl: "",
     secret: config.unsplash_appSecret,
-  }) as IUnsplash;
+  });
 }

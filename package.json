@@ -18,6 +18,7 @@
   "homepage": "https://github.com/WDeenik/unsplash_daily_wallpapers#readme",
   "dependencies": {
     "babel-register": "^6.26.0",
+    "jimp": "^0.2.28",
     "js-yaml": "^3.11.0",
     "mkdirp": "^0.5.1",
     "node-fetch": "^2.1.2",

@@ -41,9 +41,13 @@ var request = require("request");
 var unsplash_js_1 = require("unsplash-js");
 var config_1 = require("./lib/config");
 var unsplash = require("./lib/unsplash");
+// Jimp has an incomplete d.ts, so we sadly have to do it like this
+// tslint:disable-next-line:no-var-requires
+var jimp = require("jimp");
 var config = config_1.loadConfigSync();
 var unsplashInstance = unsplash.init(config);
 downloadWallpapers(unsplashInstance);
+// TODO: clean up old wallpapers:
 // cleanUpWallpapers(config);
 function downloadWallpapers(us) {
     return __awaiter(this, void 0, void 0, function () {
@@ -61,18 +65,27 @@ function downloadWallpapers(us) {
                 case 1:
                     latest = _a.sent();
                     toDownload = latest.filter(function (wallpaper) { return currentWallpaperIds.indexOf(wallpaper.id) < 0; });
-                    toDownload.forEach(function (wallpaper) { return __awaiter(_this, void 0, void 0, function () {
-                        var url;
-                        return __generator(this, function (_a) {
-                            switch (_a.label) {
-                                case 0: return [4 /*yield*/, us.photos.downloadPhoto(wallpaper).then(unsplash_js_1.toJson)];
-                                case 1:
-                                    url = (_a.sent()).url;
-                                    download(url, config.folder + "/" + wallpaper.id + ".jpg");
-                                    return [2 /*return*/];
-                            }
-                        });
-                    }); });
+                    return [4 /*yield*/, Promise.all(toDownload.map(function (wallpaper) { return __awaiter(_this, void 0, void 0, function () {
+                            var file, url;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        file = config.folder + "/" + wallpaper.id + ".jpg";
+                                        return [4 /*yield*/, us.photos.downloadPhoto(wallpaper).then(unsplash_js_1.toJson)];
+                                    case 1:
+                                        url = (_a.sent()).url;
+                                        return [4 /*yield*/, download(url, file)];
+                                    case 2:
+                                        _a.sent();
+                                        return [4 /*yield*/, process(file)];
+                                    case 3:
+                                        _a.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); }))];
+                case 2:
+                    _a.sent();
                     return [2 /*return*/];
             }
         });
@@ -80,6 +93,7 @@ function downloadWallpapers(us) {
 }
 function download(url, savePath) {
     return __awaiter(this, void 0, void 0, function () {
+        var _this = this;
         var options;
         return __generator(this, function (_a) {
             options = {
@@ -88,8 +102,46 @@ function download(url, savePath) {
                 },
                 url: url
             };
-            request(options).pipe(fs.createWriteStream(savePath));
-            return [2 /*return*/];
+            return [2 /*return*/, new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
+                    return __generator(this, function (_a) {
+                        request(options).pipe(fs.createWriteStream(savePath)
+                            .on("finish", function () { return resolve(); })
+                            .on("error", function (err) { return reject(err); }));
+                        return [2 /*return*/];
+                    });
+                }); })];
+        });
+    });
+}
+function process(file) {
+    return __awaiter(this, void 0, void 0, function () {
+        var img, e_1;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 5, , 6]);
+                    return [4 /*yield*/, jimp.read(file)];
+                case 1:
+                    img = _a.sent();
+                    return [4 /*yield*/, img.cover(config.width, config.height)];
+                case 2:
+                    _a.sent();
+                    return [4 /*yield*/, img.quality(80)];
+                case 3:
+                    _a.sent();
+                    // TODO: Watermark with correct font size & everything
+                    // await jimp.loadFont("./fonts/Sans_Shadow_White_32.fnt");
+                    return [4 /*yield*/, img.write(file)];
+                case 4:
+                    // TODO: Watermark with correct font size & everything
+                    // await jimp.loadFont("./fonts/Sans_Shadow_White_32.fnt");
+                    _a.sent();
+                    return [3 /*break*/, 6];
+                case 5:
+                    e_1 = _a.sent();
+                    throw (e_1);
+                case 6: return [2 /*return*/];
+            }
         });
     });
 }
