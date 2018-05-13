@@ -4,3 +4,4 @@ unsplash_appKey: <your Unsplash.com app Access Key>
 unsplash_appSecret: <your Unsplash.com app Secret Key>
 width: 1920
 height: 1080
+delete_more_than_max: true # If the script should delete older wallpapers if you exceed the maximum # of wallpapers
