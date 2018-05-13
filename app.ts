@@ -12,11 +12,9 @@ const config = loadConfigSync();
 const fontSize = calcFontSize();
 const unsplashInstance = unsplash.init(config);
 
-downloadWallpapers(unsplashInstance);
-// TODO: clean up old wallpapers:
-// cleanUpWallpapers(config);
+downloadWallpapers(unsplashInstance).then(cleanUpWallpapers);
 
-async function downloadWallpapers(us: unsplash.IUnsplash) {
+async function downloadWallpapers(us: unsplash.IUnsplash): Promise<string[]> {
   // Create folder if it does not exist yet
   mkdirp.sync(config.folder);
 
@@ -34,6 +32,16 @@ async function downloadWallpapers(us: unsplash.IUnsplash) {
     await download(url, file);
     await process(file, wallpaper.user.name);
   }));
+  return latest.map( ({ id }) => id);
+}
+
+async function cleanUpWallpapers(toKeep: string[]) {
+  const keepFns = toKeep.map((id) => id + ".jpg");
+  const del = fs.readdirSync(config.folder)
+  .filter((fn) => fn.search(/\.jpg$/) >= 0)
+  .filter((fn) => keepFns.indexOf(fn) < 0);
+
+  del.forEach((fn) => fs.unlinkSync(`${config.folder}/${fn}`));
 }
 
 async function download(url: string, savePath: string) {

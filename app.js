@@ -47,9 +47,7 @@ var jimp = require("jimp");
 var config = config_1.loadConfigSync();
 var fontSize = calcFontSize();
 var unsplashInstance = unsplash.init(config);
-downloadWallpapers(unsplashInstance);
-// TODO: clean up old wallpapers:
-// cleanUpWallpapers(config);
+downloadWallpapers(unsplashInstance).then(cleanUpWallpapers);
 function downloadWallpapers(us) {
     return __awaiter(this, void 0, void 0, function () {
         var _this = this;
@@ -87,8 +85,24 @@ function downloadWallpapers(us) {
                         }); }))];
                 case 2:
                     _a.sent();
-                    return [2 /*return*/];
+                    return [2 /*return*/, latest.map(function (_a) {
+                            var id = _a.id;
+                            return id;
+                        })];
             }
+        });
+    });
+}
+function cleanUpWallpapers(toKeep) {
+    return __awaiter(this, void 0, void 0, function () {
+        var keepFns, del;
+        return __generator(this, function (_a) {
+            keepFns = toKeep.map(function (id) { return id + ".jpg"; });
+            del = fs.readdirSync(config.folder)
+                .filter(function (fn) { return fn.search(/\.jpg$/) >= 0; })
+                .filter(function (fn) { return keepFns.indexOf(fn) < 0; });
+            del.forEach(function (fn) { return fs.unlinkSync(config.folder + "/" + fn); });
+            return [2 /*return*/];
         });
     });
 }
